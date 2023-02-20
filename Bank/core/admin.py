@@ -28,7 +28,16 @@ class KlienciAdmin(admin.ModelAdmin):
 
 @admin.register(Konta)
 class KontaAdmin(admin.ModelAdmin):
-    list_display = ("rodzaj_konta", "id_klienta", "id_pracownika", "data_utworzenia")
+    list_display = ("id",'rodzaj_konta', "id_klienta", "id_pracownika", "data_utworzenia")
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "id_klienta":
+            kwargs["queryset"] = Klienci.objects.filter(author=request.user)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    def formfield_form(self, db_field, request, **kwargs):
+        if db_field.name == "data_utworzenia":
+            kwargs["initial"] = datetime.now()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -38,17 +47,23 @@ class KontaAdmin(admin.ModelAdmin):
 @admin.register(Konto_kredytowe)
 class Konto_kredytoweAdmin(admin.ModelAdmin):
     list_display = ("id_konta", "oprocentowanie", "saldo")
-
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "id_konta":
+            kwargs["queryset"] = Konta.objects.filter(rodzaj_konta__rodzaj_konta="Kredytowe")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.filter(id_konta__id_klienta__author= request.user)
+        return qs.filter(id_konta__id_klienta__author= request.user, id_konta__rodzaj_konta__rodzaj_konta = "Kredytowe")
 
 @admin.register(Konto_debetowe)
 class Konto_debetoweAdmin(admin.ModelAdmin):
     list_display = ("id_konta", "saldo")
-
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "id_konta":
+            kwargs["queryset"] = Konta.objects.filter(rodzaj_konta__rodzaj_konta="Debetowe")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -63,8 +78,11 @@ class Kursy_walutoweAdmin(admin.ModelAdmin):
 
 @admin.register(Konto_walutowe)
 class Konto_walutoweAdmin(admin.ModelAdmin):
-    list_display = ("id_konta", "waluta", "saldo")
-
+    list_display = ("id","id_konta", "waluta", "saldo")
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "id_konta":
+            kwargs["queryset"] = Konta.objects.filter(rodzaj_konta__rodzaj_konta="Walutowe")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
     def get_queryset(self, request):
             qs = super().get_queryset(request)
             if request.user.is_superuser:
