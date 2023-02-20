@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User # new
 
 # Create your models here.
 
@@ -12,7 +13,6 @@ class Pracownicy(models.Model):
     imie = models.CharField(max_length=20)
     nazwisko = models.CharField(max_length=20)
     stanowisko = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='pracownicy')
-    haslo = models.CharField(max_length=100)
     def __str__(self):
         return str(self.stanowisko.stanowisko)+" "+ self.imie + " " + self.nazwisko
 class Rodzaje_kont(models.Model):
@@ -20,11 +20,10 @@ class Rodzaje_kont(models.Model):
     def __str__(self):
         return self.rodzaj_konta
 class Klienci(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     imie = models.CharField(max_length=20)
     nazwisko = models.CharField(max_length=20)
     id_pracownika = models.ForeignKey(Pracownicy, on_delete=models.CASCADE, related_name='klienci')
-    ocena = models.IntegerField(max_length=100)
-    haslo = models.CharField(max_length=100)
     def __str__(self):
         return str(self.id_pracownika.id) + " " +self.imie + " " + self.nazwisko
 
