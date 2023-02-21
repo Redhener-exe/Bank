@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User # new
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 # Create your models here.
 
 class Place(models.Model):
@@ -10,6 +10,7 @@ class Place(models.Model):
         return self.stanowisko + " " + str(self.placa_podstawowa)
 
 class Pracownicy(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     imie = models.CharField(max_length=20)
     nazwisko = models.CharField(max_length=20)
     stanowisko = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='pracownicy')
@@ -69,6 +70,6 @@ class Transakcje(models.Model):
 
 class Oceny_pracownikow(models.Model):
     id_pracownika = models.OneToOneField(Pracownicy, on_delete=models.CASCADE, related_name='oceny')
-    ocena = models.FloatField(max_length=100)
+    ocena = models.FloatField(max_length=100, validators=[MinValueValidator(0), MaxValueValidator(5)])
     def __str__(self):
         return self.id_pracownika + " " + self.ocena
