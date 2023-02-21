@@ -208,6 +208,7 @@ class Oceny_pracownikowAdmin(admin.ModelAdmin):
             if request.user in Klient.user_set.all():
                 kwargs["queryset"] = Pracownicy.objects.filter(klienci__author=request.user)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def get_queryset(self, request):
         Kierownik_dzialu = Group.objects.get(name='Kierownik działu')
         Senior = Group.objects.get(name='Senior')
@@ -231,3 +232,7 @@ class Oceny_pracownikowAdmin(admin.ModelAdmin):
         elif request.user in Kierownik_dzialu.user_set.all():
             return qs
         return qs
+
+@admin.register(Transakcje)
+class TransakcjeAdmin(admin.ModelAdmin):
+    pass
